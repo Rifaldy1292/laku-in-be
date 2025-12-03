@@ -14,7 +14,6 @@ import {
   accessCookieOptions,
   refreshCookieOptions,
 } from './auth.constants';
-import axios from 'axios';
 interface JwtPayload {
   sub: number;
   email?: string;

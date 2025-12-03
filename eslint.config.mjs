@@ -37,10 +37,17 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
 
-      // Hapus import tidak terpakai (auto)
-      'unused-imports/no-unused-imports': 'error',
+      // DIMATIKAN → terlalu strict untuk NestJS real world
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
 
-      // Warning variable tidak dipakai
+      // DITURUNKAN → kadang valid, kadang tidak
+      '@typescript-eslint/require-await': 'warn',
+
+      // PENTING → cegah variable tidak terpakai
+      '@typescript-eslint/no-unused-vars': 'error',
       'unused-imports/no-unused-vars': [
         'warn',
         {
@@ -50,6 +57,9 @@ export default tseslint.config(
           argsIgnorePattern: '^_',
         },
       ],
+
+      // Hapus import tidak terpakai
+      'unused-imports/no-unused-imports': 'error',
     },
   },
 );
