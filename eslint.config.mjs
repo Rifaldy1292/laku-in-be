@@ -3,6 +3,7 @@ import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import unusedImports from 'eslint-plugin-unused-imports';
 
 export default tseslint.config(
   {
@@ -11,7 +12,12 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   eslintPluginPrettierRecommended,
+
   {
+    plugins: {
+      'unused-imports': unusedImports,
+    },
+
     languageOptions: {
       globals: {
         ...globals.node,
@@ -24,11 +30,26 @@ export default tseslint.config(
       },
     },
   },
+
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn'
+      '@typescript-eslint/no-unsafe-argument': 'warn',
+
+      // Hapus import tidak terpakai (auto)
+      'unused-imports/no-unused-imports': 'error',
+
+      // Warning variable tidak dipakai
+      'unused-imports/no-unused-vars': [
+        'warn',
+        {
+          vars: 'all',
+          varsIgnorePattern: '^_',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+        },
+      ],
     },
   },
 );
