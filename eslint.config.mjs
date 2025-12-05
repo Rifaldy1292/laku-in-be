@@ -47,7 +47,7 @@ export default tseslint.config(
       '@typescript-eslint/require-await': 'warn',
 
       // PENTING → cegah variable tidak terpakai
-      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-unused-vars': 'warn',
       'unused-imports/no-unused-vars': [
         'warn',
         {

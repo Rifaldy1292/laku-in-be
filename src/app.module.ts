@@ -5,6 +5,12 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
+import { WhatsappModule } from './whatsapp/whatsapp.module';
+import { BusinessAnalyticsModule } from './business-analytics/business-analytics.module';
+import { FinancialRecordModule } from './financial-record/financial-record.module';
+import { ProductMediaEditorModule } from './product-media-editor/product-media-editor.module';
+import { MarketPriceRecommendationModule } from './market-price-recommendation/market-price-recommendation.module';
+import { AiVoiceNavigationModule } from './ai-voice-navigation/ai-voice-navigation.module';
 
 @Module({
   imports: [
@@ -14,6 +20,12 @@ import { ConfigModule } from '@nestjs/config';
     AuthModule,
     UserModule,
     PrismaModule,
+    WhatsappModule,
+    BusinessAnalyticsModule,
+    FinancialRecordModule,
+    ProductMediaEditorModule,
+    MarketPriceRecommendationModule,
+    AiVoiceNavigationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
