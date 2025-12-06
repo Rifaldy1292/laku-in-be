@@ -12,6 +12,7 @@ import { ProductMediaEditorModule } from './product-media-editor/product-media-e
 import { MarketPriceRecommendationModule } from './market-price-recommendation/market-price-recommendation.module';
 import { AiVoiceNavigationModule } from './ai-voice-navigation/ai-voice-navigation.module';
 import { TransactionsModule } from './transactions/transactions.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     MarketPriceRecommendationModule,
     AiVoiceNavigationModule,
     TransactionsModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

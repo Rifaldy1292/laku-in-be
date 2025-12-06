@@ -36,4 +36,27 @@ export class BusinessAnalyticsController {
       rangeDays,
     });
   }
+  @Get('financial-summary')
+  async getFinancialSummary(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const today = new Date();
+    const defaultEndDate = today.toISOString().split('T')[0]; // YYYY-MM-DD
+    const defaultStartDate = new Date(
+      today.getFullYear(),
+      today.getMonth() - 1,
+      today.getDate(),
+    )
+      .toISOString()
+      .split('T')[0]; // 1 bulan sebelumnya
+
+    const finalStartDate = startDate || defaultStartDate;
+    const finalEndDate = endDate || defaultEndDate;
+
+    return this.businessAnalyticsService.generateFinancialSummary({
+      startDate: finalStartDate,
+      endDate: finalEndDate,
+    });
+  }
 }

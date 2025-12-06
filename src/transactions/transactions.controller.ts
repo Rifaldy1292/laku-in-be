@@ -6,11 +6,17 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { JwtAccessGuard } from 'src/auth/guards/jwt-access.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
+@UseGuards(JwtAccessGuard)
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
@@ -19,7 +25,11 @@ export class TransactionsController {
   create(@Body() createTransactionDto: CreateTransactionDto) {
     return this.transactionsService.create(createTransactionDto);
   }
-
+  @Post('upload-receipt')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadReceipt(@UploadedFile() file: Express.Multer.File) {
+    return this.transactionsService.processReceiptWithOpenAI(file);
+  }
   @Get()
   findAll() {
     return this.transactionsService.findAll();

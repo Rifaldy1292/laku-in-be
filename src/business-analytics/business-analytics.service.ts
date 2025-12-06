@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OpenAI } from 'openai';
 
+interface FinancialSummaryParams {
+  startDate: string;
+  endDate: string;
+}
 @Injectable()
 export class BusinessAnalyticsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -87,21 +91,112 @@ export class BusinessAnalyticsService {
    */
   async requestSummaryFromAI(textBlock: string) {
     const response = await this.openaiClient.chat.completions.create({
-      model: 'gpt-4.1',
+      model: 'Claude Sonnet 4.5',
       messages: [
         {
           role: 'system',
-          content:
-            'Ringkas isi chat WhatsApp ini. Fokus pada aktivitas bisnis, pertanyaan pelanggan, keluhan, dan peluang penjualan.',
+          content: `
+Analisis chat WhatsApp ini untuk menilai performa bisnis. 
+Hasilkan output JSON dengan dua field:
+- summary: string → ringkasan keseluruhan isi chat, fokus pada aktivitas bisnis, pertanyaan pelanggan, keluhan, dan peluang penjualan
+- insight: string → penilaian performa bisnis: lancar, stagnan, atau menurun, beserta alasan berdasarkan pola chat
+
+Catatan:
+- Jangan menyalin seluruh chat, cukup ringkasan yang mewakili tren dan pola utama
+- Gunakan bahasa singkat dan jelas
+- Contoh output:
+{
+  "summary": "Selama periode ini, banyak pertanyaan pelanggan mengenai produk baru, beberapa keluhan pengiriman, dan beberapa permintaan repeat order.",
+  "insight": "Bisnis terlihat lancar karena ada banyak interaksi dan peluang penjualan baru, tetapi perlu memperbaiki logistik agar keluhan berkurang."
+}
+`,
         },
         {
           role: 'user',
           content: textBlock,
         },
       ],
-      max_tokens: 500,
     });
 
     return response.choices[0].message?.content ?? '-';
+  }
+  async generateFinancialSummary(params: FinancialSummaryParams) {
+    const { startDate, endDate } = params;
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // ambil semua transaksi di DB sesuai rentang tanggal
+    const transactions = await this.prisma.transactions.findMany({
+      where: {
+        sale_date: {
+          gte: start,
+          lte: end,
+        },
+      },
+    });
+
+    let totalSales = 0;
+    // parse JSON dari AI
+    let summaryFromAi;
+    // hitung total income & expense secara manual
+    if (transactions) {
+      totalSales = transactions.reduce((sum, t) => sum + Number(t.subtotal), 0);
+
+      const response = await this.openaiClient.chat.completions.create({
+        model: 'Claude Sonnet 4.5',
+        messages: [
+          {
+            role: 'system',
+            content: `
+Analisis data transaksi penjualan ini untuk menilai performa bisnis selama rentang waktu tertentu. 
+Hasilkan output JSON dengan dua field:
+- summary: string → ringkasan keseluruhan transaksi, termasuk tren penjualan, produk populer, dan pola pembelian
+- insight: string → penilaian performa bisnis: lancar, stagnan, atau menurun, beserta alasan berdasarkan data transaksi
+
+Catatan:
+- Jangan menuliskan semua transaksi satu per satu, cukup ringkasan yang mewakili pola utama
+- Gunakan bahasa singkat dan jelas
+- Contoh output:
+{
+  "summary": "Selama periode ini, produk A dan B paling banyak terjual, beberapa transaksi besar terjadi, dan ada tren peningkatan pembelian akhir pekan.",
+  "insight": "Bisnis terlihat lancar karena volume penjualan meningkat, tetapi perlu memperhatikan stok produk populer agar tidak habis."
+}
+`,
+          },
+          {
+            role: 'user',
+            content: JSON.stringify(
+              transactions.map((t) => ({
+                ...t,
+                subtotal: Number(t.subtotal),
+                unit_price: Number(t.unit_price),
+              })),
+            ),
+          },
+        ],
+      });
+      // ambil konten AI
+      const aiContent = response.choices[0].message?.content || '';
+
+      try {
+        summaryFromAi = JSON.parse(aiContent); // { summary, insight }
+      } catch (err) {
+        console.error('Gagal parse JSON AI:', err);
+        summaryFromAi = { summary: '', insight: '', full: aiContent };
+      }
+    }
+
+    return {
+      status: true,
+      summaryFromAi,
+      data: {
+        startDate,
+        endDate,
+        totalSales,
+        totalTransactions: transactions.length,
+        transactions, // data mentah dikirim ke FE/AI untuk analisis lebih lanjut
+      },
+    };
   }
 }

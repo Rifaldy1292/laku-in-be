@@ -45,3 +45,11 @@ model transactions {
   updated_at       DateTime  @updatedAt
 }
 
+model product {
+  id         Int      @id @default(autoincrement())
+  name       String
+  stock      Int      @default(0)
+  price      Float
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
