@@ -6,6 +6,7 @@ import makeWASocket, {
 
 import * as QRCode from 'qrcode';
 import * as fs from 'fs';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class WhatsappService implements OnModuleInit {
@@ -13,6 +14,33 @@ export class WhatsappService implements OnModuleInit {
   private isConnected = false;
   private currentQrCode: string | null = null;
   private currentQrTimestamp: number | null = null;
+  private readonly prisma: PrismaService;
+
+  private async saveMessage(payload: {
+    id?: string;
+    from: string;
+    to: string;
+    text: string | null;
+    timestamp?: Date;
+    direction: 'in' | 'out';
+    raw?: any;
+  }) {
+    try {
+      await this.prisma.watsapp_message.create({
+        data: {
+          id: payload.id ?? `auto-${Date.now()}`, // jika outgoing tidak punya ID WA
+          from: payload.from,
+          to: payload.to,
+          text: payload.text,
+          direction: payload.direction,
+          timestamp: payload.timestamp ?? new Date(),
+          rawJson: payload.raw ?? null,
+        },
+      });
+    } catch (err) {
+      console.log('[DB] Gagal menyimpan pesan:', err.message);
+    }
+  }
 
   async onModuleInit() {
     console.log('WhatsApp Service ready (idle, no QR generated).');
@@ -28,6 +56,7 @@ export class WhatsappService implements OnModuleInit {
       version,
       auth: state,
       printQRInTerminal: false,
+      browser: ['Baileys', 'Chrome', '4.0.0'],
     });
 
     console.log('[WA] Socket created, setting up events...');
@@ -48,6 +77,7 @@ export class WhatsappService implements OnModuleInit {
       }
 
       if (connection === 'close') {
+        this.isConnected = false;
         this.client = null;
         console.log('[WA] Connection closed.');
       }
@@ -64,11 +94,30 @@ export class WhatsappService implements OnModuleInit {
         message.message?.conversation ||
         message.message?.extendedTextMessage?.text ||
         '';
+      await this.saveMessage({
+        id: message.key.id,
+        from: message.key.remoteJid,
+        to: this.client?.user?.id || 'unknown',
+        text,
+        timestamp: new Date(message.messageTimestamp * 1000),
+        direction: 'in',
+        raw: message,
+      });
 
       console.log('[WA] Pesan masuk:', from, text);
 
-      await this.client.sendMessage(from, {
-        text: 'Halo! Pesan kamu sudah diterima, mohon tunggu sebentar ya 😊',
+      //logic ai disini
+      const replyText =
+        'Halo! Pesan kamu sudah diterima, mohon tunggu sebentar ya 😊';
+
+      await this.client.sendMessage(from, { text: replyText });
+
+      // ===== 3. SIMPAN PESAN KELUAR (OUTGOING) =====
+      await this.saveMessage({
+        from: this.client?.user?.id || 'unknown',
+        to: from,
+        text: replyText,
+        direction: 'out',
       });
     });
 
@@ -85,7 +134,7 @@ export class WhatsappService implements OnModuleInit {
       console.log('[WA] Socket closed, initializing new WhatsApp socket...');
       await this.initializeWhatsApp();
     }
-    await this.initializeWhatsApp();
+
     // nanti cek apakah  status koneksi close , jika close maka aktifkan dulu
     // Jika sudah connect, tidak perlu QR
     if (this.isConnected) {

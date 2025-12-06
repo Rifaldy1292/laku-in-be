@@ -11,6 +11,7 @@ import { FinancialRecordModule } from './financial-record/financial-record.modul
 import { ProductMediaEditorModule } from './product-media-editor/product-media-editor.module';
 import { MarketPriceRecommendationModule } from './market-price-recommendation/market-price-recommendation.module';
 import { AiVoiceNavigationModule } from './ai-voice-navigation/ai-voice-navigation.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AiVoiceNavigationModule } from './ai-voice-navigation/ai-voice-navigati
     ProductMediaEditorModule,
     MarketPriceRecommendationModule,
     AiVoiceNavigationModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

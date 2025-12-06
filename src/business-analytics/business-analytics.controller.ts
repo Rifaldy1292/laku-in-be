@@ -1,15 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { BusinessAnalyticsService } from './business-analytics.service';
-import { CreateBusinessAnalyticDto } from './dto/create-business-analytic.dto';
-import { UpdateBusinessAnalyticDto } from './dto/update-business-analytic.dto';
 
 @Controller('business-analytics')
 export class BusinessAnalyticsController {
@@ -17,31 +7,33 @@ export class BusinessAnalyticsController {
     private readonly businessAnalyticsService: BusinessAnalyticsService,
   ) {}
 
-  @Post()
-  create(@Body() createBusinessAnalyticDto: CreateBusinessAnalyticDto) {
-    return this.businessAnalyticsService.create(createBusinessAnalyticDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.businessAnalyticsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.businessAnalyticsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateBusinessAnalyticDto: UpdateBusinessAnalyticDto,
+  /**
+   * GET /business-analytics/summary
+   * Query:
+   * - phone: nomor WA yang sedang terhubung
+   * - limit: jumlah pesan maksimal (default 3000)
+   * - days: rentang hari (default 7)
+   */
+  @Get('summary')
+  async getChatSummary(
+    @Query('phone') phone: string,
+    @Query('limit') limit?: string,
+    @Query('days') days?: string,
   ) {
-    return this.businessAnalyticsService.update(+id, updateBusinessAnalyticDto);
-  }
+    if (!phone) {
+      return {
+        status: false,
+        message: 'Parameter ?phone wajib diisi',
+      };
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.businessAnalyticsService.remove(+id);
+    const maxMessages = limit ? Number(limit) : 3000;
+    const rangeDays = days ? Number(days) : 7;
+
+    return this.businessAnalyticsService.generateSummary({
+      phone,
+      maxMessages,
+      rangeDays,
+    });
   }
 }

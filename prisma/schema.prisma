@@ -22,3 +22,26 @@ model users {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 }
+
+model watsapp_message {
+  id          String   @id                     // messageId WA
+  from        String                           // nomor pengirim
+  to          String                           // nomor tujuan
+  text        String?                          // isi pesan
+  direction   String                           // 'in' atau 'out'
+  timestamp   DateTime                         // waktu pesan WA
+  rawJson     Json?                            // optional
+  createdAt   DateTime @default(now())         // waktu disimpan
+}
+
+model transactions {
+  id               Int       @id @default(autoincrement())
+  item_name        String
+  quantity         Int
+  unit_price       Decimal   @db.Decimal(12, 2)
+  subtotal         Decimal   @db.Decimal(12, 2)
+  sale_date        DateTime
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+}
+
