@@ -9,7 +9,7 @@ async function bootstrap() {
   applicationLogger.error('Inisialisasi server NestJS dimulai...');
   app.use(cookieParser());
   app.enableCors({
-    origin: [],
+    origin: [process.env.CORS_ORIGIN],
     credentials: true,
   });
   // Tambahkan ini untuk validasi DTO secara global
