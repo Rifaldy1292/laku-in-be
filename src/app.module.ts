@@ -13,6 +13,7 @@ import { MarketPriceRecommendationModule } from './market-price-recommendation/m
 import { AiVoiceNavigationModule } from './ai-voice-navigation/ai-voice-navigation.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { ProductsModule } from './products/products.module';
+import { ChatBotModule } from './chat-bot/chat-bot.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ProductsModule } from './products/products.module';
     AiVoiceNavigationModule,
     TransactionsModule,
     ProductsModule,
+    ChatBotModule,
   ],
   controllers: [AppController],
   providers: [AppService],
