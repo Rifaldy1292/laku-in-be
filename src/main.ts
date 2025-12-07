@@ -6,7 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  applicationLogger.error('Inisialisasi server NestJS dimulai...');
+  applicationLogger.info('Inisialisasi server NestJS dimulai...');
   app.use(cookieParser());
   app.enableCors({
     origin: [process.env.CORS_ORIGIN],
