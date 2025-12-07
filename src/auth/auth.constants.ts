@@ -7,7 +7,7 @@ export const cookieBase = {
   httpOnly: true as const,
   secure,
   sameSite: 'lax' as const, // jika subdomain berbeda dan perlu cross-site, atur 'none' + wajib HTTPS
-  domain: process.env.COOKIE_DOMAIN || 'localhost',
+  domain: undefined,
   path: '/',
 };
 
