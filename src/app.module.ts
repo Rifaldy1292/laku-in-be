@@ -14,6 +14,7 @@ import { AiVoiceNavigationModule } from './ai-voice-navigation/ai-voice-navigati
 import { TransactionsModule } from './transactions/transactions.module';
 import { ProductsModule } from './products/products.module';
 import { ChatBotModule } from './chat-bot/chat-bot.module';
+import { VoiceAiModule } from './voice-ai/voice-ai.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ChatBotModule } from './chat-bot/chat-bot.module';
     TransactionsModule,
     ProductsModule,
     ChatBotModule,
+    VoiceAiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
