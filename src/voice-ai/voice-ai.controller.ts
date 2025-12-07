@@ -18,18 +18,6 @@ export class VoiceAiController {
   ) {}
 
   @Post('process')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Process voice command for navigation or text response',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request - Invalid transcript',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error',
-  })
   async processVoiceCommand(
     @Body() voiceCommandDto: VoiceCommandDto,
   ): Promise<VoiceResponseDto> {
